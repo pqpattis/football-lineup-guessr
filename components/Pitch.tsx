@@ -1,10 +1,15 @@
 import React from 'react';
-import { FORMATION_MAP, FormationKey } from './PitchData';
-import { PositionSlot } from '@/types';
+import { FORMATION_MAP, FormationKey } from './PitchData'; 
+import { PositionSlot, SolutionPlayer } from '@/types'; 
 
-// --- Helper Component ---
-// Renders a single clickable player slot
-const PlayerSlot: React.FC<{ id: string, name: string, gridArea: string, onClick: (id: string) => void }> = ({ id, name, gridArea, onClick }) => (
+// --- Helper Component: The Clickable Slot ---
+const PlayerSlot: React.FC<{ 
+  id: string, 
+  name: string, 
+  gridArea: string, 
+  onClick: (id: string) => void,
+  kitNumber: number 
+}> = ({ id, name, gridArea, onClick, kitNumber }) => (
   <button
     // Apply positioning using the grid area defined in PitchData
     style={{ gridArea }}
@@ -16,9 +21,9 @@ const PlayerSlot: React.FC<{ id: string, name: string, gridArea: string, onClick
       border-2 border-yellow-300 cursor-pointer
     "
     onClick={() => onClick(id)}
-    title={`Guess the ${name}`}
+    title={`Guess the ${name} (Kit #${kitNumber})`}
   >
-    <span className="text-sm">?</span>
+    <span className="text-xl font-extrabold">{kitNumber}</span> 
     <span className="text-[10px] uppercase font-light mt-0.5">{id}</span>
   </button>
 );
@@ -27,10 +32,11 @@ const PlayerSlot: React.FC<{ id: string, name: string, gridArea: string, onClick
 interface PitchProps {
   onSlotClick: (positionId: string) => void; 
   currentFormation: FormationKey; 
+  solutionLineup: SolutionPlayer[];
 }
 
 // --- Main Pitch Component ---
-export const Pitch: React.FC<PitchProps> = ({ onSlotClick, currentFormation }) => {
+export const Pitch: React.FC<PitchProps> = ({ onSlotClick, currentFormation, solutionLineup }) => {
   
   // Get the specific slot layout based on the formation key
   const LineupSlots: PositionSlot[] = FORMATION_MAP[currentFormation]; 
@@ -38,12 +44,12 @@ export const Pitch: React.FC<PitchProps> = ({ onSlotClick, currentFormation }) =
   // Define the master grid areas for the pitch. 
   // All formations use this same 6x5 grid, but slots are placed differently.
   const gridTemplateAreas = 
-    '"A1 A2 A3 A4 A5"' + // Attacking Third
-    '"B1 B2 B3 B4 B5"' +
-    '"C1 C2 C3 C4 C5"' + // Middle Third
+    '"A1 A2 A3 A4 A5"' + // Attacking Third 
+    '"B1 B2 B3 B4 B5"' + 
+    '"C1 C2 C3 C4 C5"' + // Middle Third 
     '"D1 D2 D3 D4 D5"' + 
-    '"E1 E2 E3 E4 E5"' + // Defensive Third
-    '"F1 F2 F3 F4 F5"';  // GK Area
+    '"E1 E2 E3 E4 E5"' + // Defensive Third 
+    '"F1 F2 F3 F4 F5"';  // GK Area 
 
   return (
     <div className="p-4 bg-gray-100 rounded-lg shadow-inner">
@@ -71,15 +77,23 @@ export const Pitch: React.FC<PitchProps> = ({ onSlotClick, currentFormation }) =
         </div>
 
         {/* Render the Player Slots by mapping the formation data */}
-        {LineupSlots.map((slot) => (
-          <PlayerSlot
-            key={slot.id}
-            id={slot.id}
-            name={slot.name}
-            gridArea={slot.gridArea}
-            onClick={onSlotClick}
-          />
-        ))}
+        {LineupSlots.map((slot) => {
+          // Find the matching player's data from the solution
+          const player = solutionLineup.find(p => p.positionId === slot.id);
+
+          if (!player) return null;
+          
+          return (
+            <PlayerSlot
+              key={slot.id}
+              id={slot.id}
+              name={slot.name}
+              gridArea={slot.gridArea}
+              onClick={onSlotClick}
+              kitNumber={player.kitNumber}
+            />
+          );
+        })}
       </div>
     </div>
   );

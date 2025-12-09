@@ -3,14 +3,14 @@ import { PositionSlot } from "@/types";
 // Define array positioning for 4-3-3 formation
 const formation433: PositionSlot[] = [
   // Attack
-  { id: 'LW', name: 'Left Winger', gridArea: 'A5' },
+  { id: 'LW', name: 'Left Winger', gridArea: 'A1' },
   { id: 'ST', name: 'Striker', gridArea: 'A3' },
-  { id: 'RW', name: 'Right Winger', gridArea: 'A1' },
+  { id: 'RW', name: 'Right Winger', gridArea: 'A5' },
 
   // Midfield
-  { id: 'LCM', name: 'Left Center Mid', gridArea: 'C4' },
+  { id: 'LCM', name: 'Left Center Mid', gridArea: 'C2' },
   { id: 'CM', name: 'Center Midfielder', gridArea: 'C3' },
-  { id: 'RCM', name: 'Right Center Mid', gridArea: 'C2' },
+  { id: 'RCM', name: 'Right Center Mid', gridArea: 'C4' },
 
   // Defense
   { id: 'LB', name: 'Left Back', gridArea: 'E1' },
