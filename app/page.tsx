@@ -1,25 +1,55 @@
 'use client';
 
 import { Pitch } from "@/components/Pitch";
-import { useState } from "react";
+import { GuessingModal } from "@/components/GuessingModal";
+import { useState, useEffect } from "react"; 
 import { MOCK_SOLUTION } from "@/data/mockMatch"; 
-import { SolutionPlayer } from "@/types"; 
-import { FormationKey } from "@/components/PitchData";
+import { SolutionPlayer, Player, PositionId } from "@/types"; 
+import { FormationKey, FORMATION_MAP } from "@/components/PitchData"; 
+import { useGameStore, GameState } from "@/store/gameStore"; 
 
 export default function Home() {
   // State to track which position the user has clicked on (e.g., 'GK', 'ST')
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [selectedSlotId, setSelectedSlotId] = useState<PositionId | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // Get the current formation string from the mock solution
+// Get the current formation string from the mock solution
   const activeFormation = MOCK_SOLUTION.formation as FormationKey; 
-  
+
   // Get the full lineup data to pass to the Pitch component
   const solutionLineup: SolutionPlayer[] = MOCK_SOLUTION.lineup;
 
-  // Function called when a player slot is clicked
+  // Initialize store actions and state
+  const initializePositions = useGameStore((state: GameState) => state.initializePositions);
+
+  // Initialize the game state when the component mounts
+  useEffect(() => {
+    // Extract all PositionIds from the formation data
+    const positionIds: PositionId[] = FORMATION_MAP[activeFormation].map(p => p.id);
+    initializePositions(positionIds);
+  }, [activeFormation, initializePositions]); // Depend on activeFormation and action
+
   const handleSlotClick = (positionId: string) => {
-    setSelectedSlot(positionId);
-    console.log(`Slot clicked: ${positionId}. Ready to open guessing modal.`);
+    const id = positionId as PositionId;
+    setSelectedSlotId(id);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedSlotId(null);
+  };
+  
+  const getPositionName = (id: PositionId | null) => {
+    if (!id) return "";
+    const slot = FORMATION_MAP[activeFormation].find(s => s.id === id);
+    return slot?.name || id;
+  };
+  
+  // This function is the final step after a player is successfully guessed
+  const handlePlayerSuccess = (player: Player) => {
+      console.log(`Player ${player.name} solved for position ${selectedSlotId}`);
+      handleModalClose();
   };
 
   return (
@@ -33,15 +63,17 @@ export default function Home() {
       
       <Pitch 
         onSlotClick={handleSlotClick} 
-        currentFormation={activeFormation}
+        currentFormation={activeFormation} 
         solutionLineup={solutionLineup}
       />
-
-      {selectedSlot && (
-        <div className="mt-4 p-4 bg-white border border-gray-300 rounded-lg">
-          Currently Guessing for: {selectedSlot}
-        </div>
-      )}
+      
+      <GuessingModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        positionId={selectedSlotId}
+        positionName={getPositionName(selectedSlotId)}
+        onPlayerSuccess={handlePlayerSuccess}
+      />
     </main>
   );
 }

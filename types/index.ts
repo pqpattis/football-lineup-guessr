@@ -31,3 +31,17 @@ export interface MatchSolution {
     formation: string; 
     lineup: SolutionPlayer[]; 
 }
+
+// Letter status for wordle feedback
+export type LetterStatus = 'correct' | 'present' | 'absent'; 
+
+export interface GuessLetter {
+  letter: string;
+  status: LetterStatus;
+}
+
+// Interface to store a single completed guess (used for history)
+export interface NameGuess {
+  guessName: string;
+  feedback: GuessLetter[];
+}
