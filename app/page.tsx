@@ -22,6 +22,9 @@ export default function Home() {
   // Initialize store actions and state
   const initializePositions = useGameStore((state: GameState) => state.initializePositions);
 
+  // Select the full guessesByPosition state and solved map
+  const guessesByPosition = useGameStore((state: GameState) => state.guessesByPosition);
+
   // Initialize the game state when the component mounts
   useEffect(() => {
     // Extract all PositionIds from the formation data
@@ -65,6 +68,7 @@ export default function Home() {
         onSlotClick={handleSlotClick} 
         currentFormation={activeFormation} 
         solutionLineup={solutionLineup}
+        gameState={guessesByPosition}
       />
       
       <GuessingModal

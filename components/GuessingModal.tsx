@@ -93,9 +93,17 @@ export const GuessingModal: React.FC<GuessingModalProps> = ({
 
     const solutionPlayer = MOCK_SOLUTION.lineup.find(p => p.positionId === positionId);
     const correctName = solutionPlayer?.name || "";
+    const correctNameLength = correctName.length;
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Must match the length of the correct name
+        if (currentGuess.trim().length !== correctNameLength) {
+             alert(`Guess must be exactly ${correctNameLength} letters long.`);
+             return;
+        }
+
         if (currentGuess.trim() === '' || positionState.isSolved || livesRemaining <= 0) return;
 
         const feedback = compareNames(currentGuess, correctName);
@@ -143,7 +151,7 @@ export const GuessingModal: React.FC<GuessingModalProps> = ({
                 <form onSubmit={handleSubmit} className="flex gap-3 mb-3">
                     <input
                         type="text"
-                        placeholder={`Name for ${positionId}`}
+                        placeholder={`${correctNameLength}-Letter Name for ${positionId}`}
                         value={currentGuess}
                         onChange={(e) => setCurrentGuess(e.target.value)}
                         className="
@@ -153,7 +161,7 @@ export const GuessingModal: React.FC<GuessingModalProps> = ({
                             transition duration-200
                         "
                         disabled={positionState.isSolved || livesRemaining <= 0}
-                        maxLength={15}
+                        maxLength={correctNameLength}
                     />
                     <button 
                         type="submit" 

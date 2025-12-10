@@ -1,4 +1,6 @@
 import { PositionSlot } from "@/types";
+import { GuessLetter, LetterStatus } from "@/types";
+import { PositionState } from "@/store/gameStore";
 
 // Define array positioning for 4-3-3 formation
 const formation433: PositionSlot[] = [
@@ -30,3 +32,54 @@ export const FORMATION_MAP = {
 };
 
 export type FormationKey = keyof typeof FORMATION_MAP;
+
+// Calculates the best letter status across all guesses for visualization
+export const getBestFeedback = (
+    positionState: PositionState | undefined, 
+    correctNameLength: number
+): GuessLetter[] => {
+    if (!positionState || positionState.guesses.length === 0) {
+        // Return blank placeholders if no guesses have been made
+        return Array(correctNameLength).fill({ letter: '_', status: 'absent' });
+    }
+
+    const guesses = positionState.guesses;
+    const bestFeedback: GuessLetter[] = Array(correctNameLength).fill(null);
+
+    // Iterate over all guesses, prioritizing 'correct' status
+    for (const guess of guesses) {
+        const feedback = guess.feedback;
+        
+        for (let i = 0; i < correctNameLength; i++) {
+            const currentLetter = feedback[i];
+            
+            // Safety check for guesses that are shorter than the answer name
+            if (!currentLetter) continue; 
+            
+            const existingBest = bestFeedback[i];
+            
+            // If the current guess is 'correct', it is always the best
+            if (currentLetter.status === 'correct') {
+                bestFeedback[i] = currentLetter;
+            } 
+            // If the position is currently empty or has a lower status, update it
+            else if (!existingBest || existingBest.status !== 'correct') {
+                // If existing is 'present' and current is 'absent', keep 'present' (prioritize)
+                if (existingBest?.status === 'present' && currentLetter.status === 'absent') {
+                    continue; 
+                }
+                // If the current status is 'present' and existing is 'absent' or null, update
+                if (currentLetter.status === 'present' && existingBest?.status !== 'present') {
+                    bestFeedback[i] = currentLetter;
+                }
+            }
+        }
+    }
+    
+    // Replace nulls and mark all letters as absent by default if status wasn't 'correct'/'present'
+    return bestFeedback.map((f, i) => {
+        if (f) return f;
+        // Default to a blank placeholder if no definitive status was achieved
+        return { letter: '_', status: 'absent' as LetterStatus };
+    });
+};
