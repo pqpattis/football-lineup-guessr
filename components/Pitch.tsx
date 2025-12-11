@@ -6,18 +6,19 @@ import { PositionState } from '@/store/gameStore';
 
 // Name progress display
 const NameProgressDisplay: React.FC<{ bestFeedback: GuessLetter[] }> = ({ bestFeedback }) => (
-    <div className="flex space-x-0.5 mt-1">
-            {bestFeedback.map((f, i) => (
-                <span
-                    key={i}
-                    className={`text-[8px] font-extrabold w-2 h-2 rounded-full flex items-center justify-center 
-                      ${f.status === 'correct' ? 'bg-green-300' : 
-                        f.status === 'present' ? 'bg-yellow-300' : 'bg-white/30'}`}
-                >
-                    {f.letter === '_' ? '•' : f.letter}
-                </span>
-            ))}
-        </div>
+    <div className="flex items-center space-x-1 mt-2">
+      {bestFeedback.map((f, i) => (
+        <span
+          key={i}
+          aria-hidden
+          className={`w-3 h-3 text-[10px] font-extrabold rounded-full flex items-center justify-center transition-all duration-200 transform
+            ${f.status === 'correct' ? 'bg-green-400 scale-105' : f.status === 'present' ? 'bg-yellow-400' : 'bg-white/30'}
+          `}
+        >
+          {f.letter === '_' ? '•' : f.letter}
+        </span>
+      ))}
+    </div>
 );
 
 // The clickable player slot
@@ -33,28 +34,33 @@ const PlayerSlot: React.FC<{
     // Determine the main background color
     const bgColor = isSolved ? 'bg-green-600' : 'bg-gray-700';
     const borderColor = isSolved ? 'border-green-300' : 'border-yellow-300';
+    // Use a pulsing animation for solved slots
+    const solvedClasses = isSolved ? 'animate-pulse scale-105 ring-4 ring-green-300/30' : '';
     
     return (
       <button
+        aria-pressed={isSolved}
+        aria-label={isSolved ? `${name} solved` : `Guess ${name}`}
         className={`
-          flex flex-col items-center justify-center 
-          w-16 h-16 rounded-full shadow-lg transition-all duration-200 
-          ${bgColor} text-white font-bold text-xs 
+          flex flex-col items-center justify-center
+          w-[clamp(3rem,7vmin,4.5rem)] h-[clamp(3rem,7vmin,4.5rem)] rounded-full shadow-lg transition-all duration-200 transform-gpu
+          ${bgColor} text-white font-bold text-sm
           hover:opacity-90 hover:scale-105 hover:shadow-xl
           border-2 ${borderColor} cursor-pointer relative
+          ${solvedClasses}
         `}
         onClick={() => onClick(id)}
         title={isSolved ? `${name} (Solved)` : `Guess the ${name} (Kit #${kitNumber})`}
         disabled={isSolved}
       >
         {/* Main kit number and icon */}
-        <span className="text-2xl font-extrabold mb-1">
+        <span className="text-xl font-extrabold mb-1 leading-none">
             {isSolved ? '✅' : kitNumber}
         </span>
         
         {/* Guesses counter */}
         {guessesTaken > 0 && !isSolved && (
-            <div className="absolute top-[-10px] right-[-10px] bg-red-600 text-white w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center border-2 border-white">
+            <div className="absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center border-2 border-white">
                 {guessesTaken}
             </div>
         )}
@@ -88,27 +94,42 @@ export const Pitch: React.FC<PitchProps> = ({ onSlotClick, currentFormation, sol
 
   return (
     <div className="p-4 bg-gray-100 rounded-lg shadow-inner">
-      <div 
-        className="
-          relative h-[700px] w-full max-w-xl mx-auto 
-          bg-green-700 border-4 border-white rounded-lg 
+      <div
+        className={
+          `relative h-[min(70vh,700px)] w-full max-w-3xl mx-auto
+          bg-green-700 border-4 border-white rounded-lg
           shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]
-          grid gap-2 p-2
-        "
+          grid gap-2 p-0`
+        }
         style={{
           gridTemplateColumns: 'repeat(5, 1fr)', // Always 5 columns wide
           gridTemplateRows: 'repeat(6, 1fr)',    // Always 6 rows high
           gridTemplateAreas: gridTemplateAreas,
         }}
       >
+        {/* Dev-only grid overlay to help debug cell boundaries */}
+        {/* {process.env.NODE_ENV !== 'production' && (
+          <div className="absolute inset-0 pointer-events-none z-50">
+            <div
+              className="absolute inset-0"
+              style={{
+                backgroundImage:
+                  'linear-gradient(to right, rgba(255,255,255,0.65) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.65) 1px, transparent 1px)',
+                backgroundSize: '20% 100%, 100% 16.6667%',
+                backgroundRepeat: 'repeat, repeat',
+                mixBlendMode: 'overlay',
+              }}
+            />
+          </div>
+        )} */}
         {/* Field Lines for Visual Context */}
         <div className="absolute inset-0 border-white/50 pointer-events-none">
           {/* Halfway Line */}
-          <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-white/50 transform -translate-y-1/2"></div>
+          <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-white/50 transform -translate-y-1/2"></div>
           {/* Center Circle */}
-          <div className="absolute top-1/2 left-1/2 w-20 h-20 border-2 border-white/50 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute top-1/2 left-1/2 w-16 md:w-20 lg:w-24 h-16 md:h-20 lg:h-24 border-2 border-white/50 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
           {/* Goal Area/Penalty Box visual at the bottom (GK end) */}
-          <div className="absolute bottom-0 left-1/2 w-48 h-16 border-t-4 border-l-2 border-r-2 border-white/50 transform -translate-x-1/2"></div>
+          <div className="absolute bottom-2 left-1/2 w-[30%] max-w-[220px] h-14 md:h-16 border-t-4 border-l-2 border-r-2 border-white/50 transform -translate-x-1/2"></div>
         </div>
 
         {/* Render the Player Slots by mapping the formation data */}
@@ -124,27 +145,33 @@ export const Pitch: React.FC<PitchProps> = ({ onSlotClick, currentFormation, sol
           // Calculate the best persistent visual feedback
           const bestFeedback = getBestFeedback(positionState, correctNameLength);
 
-          if (!player) return null;
-          
           return (
             <div
-                key={slot.id}
-                style={{ gridArea: slot.gridArea }}
-                className="flex flex-col items-center justify-center h-full w-full">
-
-                <PlayerSlot
-                  id={slot.id}
-                  name={slot.name}
-                  onClick={onSlotClick}
-                  kitNumber={player.kitNumber}
-                  guessesTaken={positionState?.guesses.length || 0}
-                  isSolved={positionState?.isSolved || false}
-                />
-                
-                {/* Display the progress only if the name has letters */}
-                {correctNameLength > 0 && (
-                  <NameProgressDisplay bestFeedback={bestFeedback} />
+              key={slot.id}
+              style={{ gridArea: slot.gridArea }}
+              className="grid place-items-center h-full w-full"
+            >
+              <div className="flex flex-col items-center max-w-[110px] w-full">
+                {player ? (
+                  <>
+                    <PlayerSlot
+                      id={slot.id}
+                      name={slot.name}
+                      onClick={onSlotClick}
+                      kitNumber={player.kitNumber}
+                      guessesTaken={positionState?.guesses.length || 0}
+                      isSolved={positionState?.isSolved || false}
+                    />
+                    {correctNameLength > 0 && (
+                      <NameProgressDisplay bestFeedback={bestFeedback} />
+                    )}
+                  </>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-white/60 text-xs select-none" style={{minHeight: 48}}>
+                    {slot.name}
+                  </div>
                 )}
+              </div>
             </div>
           );
         })}
