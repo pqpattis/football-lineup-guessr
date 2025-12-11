@@ -2,35 +2,33 @@
 
 import { Pitch } from "@/components/Pitch";
 import { GuessingModal } from "@/components/GuessingModal";
-import { useState, useEffect } from "react"; 
+import { useState } from "react";
 import { MOCK_SOLUTION } from "@/data/mockMatch"; 
 import { SolutionPlayer, Player, PositionId } from "@/types"; 
 import { FormationKey, FORMATION_MAP } from "@/components/PitchData"; 
-import { useGameStore, GameState } from "@/store/gameStore"; 
+import { useGameStore } from "@/store/gameStore";
+import dynamic from "next/dynamic";
+
+// Relies on dynamic client-side state
+const GameOverModal = dynamic(
+  () => import('@/components/GameOverModal').then((mod) => mod.GameOverModal),
+  {
+    ssr: false, // Disable server-side rendering
+  }
+);
 
 export default function Home() {
-  // State to track which position the user has clicked on (e.g., 'GK', 'ST')
+    // State to track which position the user has clicked on (e.g., 'GK', 'ST')
   const [selectedSlotId, setSelectedSlotId] = useState<PositionId | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-// Get the current formation string from the mock solution
-  const activeFormation = MOCK_SOLUTION.formation as FormationKey; 
+  // Get the current formation string from the mock solution
+  const activeFormation = MOCK_SOLUTION.formation as FormationKey;
 
-  // Get the full lineup data to pass to the Pitch component
+    // Get the full lineup data to pass to the Pitch component
   const solutionLineup: SolutionPlayer[] = MOCK_SOLUTION.lineup;
 
-  // Initialize store actions and state
-  const initializePositions = useGameStore((state: GameState) => state.initializePositions);
-
-  // Select the full guessesByPosition state and solved map
-  const guessesByPosition = useGameStore((state: GameState) => state.guessesByPosition);
-
-  // Initialize the game state when the component mounts
-  useEffect(() => {
-    // Extract all PositionIds from the formation data
-    const positionIds: PositionId[] = FORMATION_MAP[activeFormation].map(p => p.id);
-    initializePositions(positionIds);
-  }, [activeFormation, initializePositions]); // Depend on activeFormation and action
+  const guessesByPosition = useGameStore(state => state.guessesByPosition);
 
   const handleSlotClick = (positionId: string) => {
     const id = positionId as PositionId;
@@ -78,6 +76,9 @@ export default function Home() {
         positionName={getPositionName(selectedSlotId)}
         onPlayerSuccess={handlePlayerSuccess}
       />
+
+      <GameOverModal />
+
     </main>
   );
 }
