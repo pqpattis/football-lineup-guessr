@@ -5,21 +5,71 @@ import { GuessLetter } from '@/types';
 import { PositionState } from '@/store/gameStore';
 
 // Name progress display
-const NameProgressDisplay: React.FC<{ bestFeedback: GuessLetter[] }> = ({ bestFeedback }) => (
-    <div className="flex items-center space-x-1 mt-2">
-      {bestFeedback.map((f, i) => (
-        <span
-          key={i}
-          aria-hidden
-          className={`w-3 h-3 text-[10px] font-extrabold rounded-full flex items-center justify-center transition-all duration-200 transform
-            ${f.status === 'correct' ? 'bg-green-400 scale-105' : f.status === 'present' ? 'bg-yellow-400' : 'bg-white/30'}
-          `}
-        >
-          {f.letter === '_' ? '•' : f.letter}
-        </span>
-      ))}
+const NameProgressDisplay: React.FC<{ bestFeedback: GuessLetter[] }> = ({ bestFeedback }) => {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const marqueeRef = React.useRef<HTMLDivElement>(null);
+  const [shouldScroll, setShouldScroll] = React.useState(false);
+
+  React.useLayoutEffect(() => {
+    const el = marqueeRef.current;
+    const container = containerRef.current;
+    if (!el || !container) return;
+    setShouldScroll(el.scrollWidth > container.offsetWidth);
+  }, [bestFeedback]);
+
+  // Calculate scroll distance (overflow amount)
+  const [scrollDist, setScrollDist] = React.useState(0);
+  React.useLayoutEffect(() => {
+    const el = marqueeRef.current;
+    const container = containerRef.current;
+    if (!el || !container || !shouldScroll) return;
+    setScrollDist(el.scrollWidth - container.offsetWidth);
+  }, [shouldScroll, bestFeedback]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative mt-2 overflow-x-hidden"
+      style={{
+        width: '110px',
+        maxWidth: '100%',
+        minWidth: 0,
+      }}
+    >
+      <div
+        ref={marqueeRef}
+        className={
+          `flex items-center justify-center transition-all duration-200 ${shouldScroll ? 'animate-pingpong' : ''}`
+        }
+        style={{
+          whiteSpace: 'nowrap',
+          flexShrink: 0,
+          minWidth: 'fit-content',
+          animation: shouldScroll && scrollDist > 0 ? `pingpong 3s linear infinite alternate` : undefined,
+          ...(shouldScroll && scrollDist > 0 ? { ['--pingpong-dist' as any]: `-${scrollDist}px` } : {}),
+        }}
+      >
+        {bestFeedback.map((f, i) => (
+          <span
+            key={i}
+            aria-hidden
+            className={`w-4 h-4 rounded-full flex items-center justify-center font-mono text-[15px] font-extrabold text-center leading-none select-none
+              ${f.status === 'correct' ? 'bg-green-400' : f.status === 'present' ? 'bg-yellow-400' : 'bg-white/30'}
+            `}
+          >
+            {f.letter === '_' ? '•' : f.letter}
+          </span>
+        ))}
+      </div>
+      <style>{`
+        @keyframes pingpong {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(var(--pingpong-dist, -50%)); }
+        }
+      `}</style>
     </div>
-);
+  );
+};
 
 // The clickable player slot
 const PlayerSlot: React.FC<{ 
