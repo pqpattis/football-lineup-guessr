@@ -1,4 +1,4 @@
-import { compareNames } from '@/components/GuessingModal';
+import { compareNames } from '@/utils/nameComparison';
 
 describe('compareNames', () => {
   const answer = 'MODRIC';

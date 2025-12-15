@@ -1,3 +1,5 @@
+import { GuessLetter } from '../utils/nameComparison';
+
 export type PositionId = 
   | 'GK' 
   | 'RWB' | 'RB' | 'RCB' | 'CB' | 'LCB' | 'LB' | 'LWB' 
@@ -30,14 +32,6 @@ export interface MatchSolution {
     date: string; 
     formation: string; 
     lineup: SolutionPlayer[]; 
-}
-
-// Letter status for wordle feedback
-export type LetterStatus = 'correct' | 'present' | 'absent'; 
-
-export interface GuessLetter {
-  letter: string;
-  status: LetterStatus;
 }
 
 // Interface to store a single completed guess (used for history)
