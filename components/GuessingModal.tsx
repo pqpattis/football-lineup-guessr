@@ -14,7 +14,7 @@ interface GuessingModalProps {
 }
 
 // Letter comparison logic
-const compareNames = (guess: string, answer: string): GuessLetter[] => {
+export const compareNames = (guess: string, answer: string): GuessLetter[] => {
     const guessUpper = guess.toUpperCase();
     const answerUpper = answer.toUpperCase();
     const feedback: GuessLetter[] = [];
