@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { NameGuess, PositionId } from '@/types';
-import { MOCK_SOLUTION } from '@/data/mockMatch';
+import { MatchSolution, NameGuess, PositionId, SolutionPlayer } from '@/types';
+import { MOCK_MATCHES } from '@/data/mockMatches';
 
 // State structure for a single position
 export interface PositionState {
@@ -12,24 +12,28 @@ export interface PositionState {
 
 // Overall state structure
 export interface GameState {
+    currentMatch: MatchSolution;
     guessesByPosition: Record<PositionId, PositionState>;
     activePositionId: PositionId | null;
-    
     isGameOver: boolean;
     isGameWon: boolean;
     MAX_LIVES: number;
 }
 
 export interface GameActions {
+    selectMatch: (id: number) => void;
     setActivePosition: (id: PositionId | null) => void;
     addGuess: (positionId: PositionId, newGuess: NameGuess, isSolved: boolean) => void;
     resetGame: () => void;
 }
 
 // Initial state creator helper
-const createInitialPositionStates = (maxLives: number): Record<PositionId, PositionState> => {
+const createInitialPositionStates = (
+    lineup: SolutionPlayer[],
+    maxLives: number
+): Record<PositionId, PositionState> => {
     const states = {} as Record<PositionId, PositionState>;
-    MOCK_SOLUTION.lineup.forEach(p => {
+    lineup.forEach(p => {
         states[p.positionId] = {
             positionId: p.positionId,
             guesses: [],
@@ -41,10 +45,11 @@ const createInitialPositionStates = (maxLives: number): Record<PositionId, Posit
 };
 
 const MAX_LIVES = 5;
+const FIRST_MATCH_SOLUTION = MOCK_MATCHES[0];
 const initialState: GameState = {
-    guessesByPosition: createInitialPositionStates(MAX_LIVES), 
+    currentMatch: FIRST_MATCH_SOLUTION,
+    guessesByPosition: createInitialPositionStates(FIRST_MATCH_SOLUTION.lineup, MAX_LIVES), 
     activePositionId: null,
-    
     isGameOver: false,
     isGameWon: false,
     MAX_LIVES: MAX_LIVES,
@@ -52,6 +57,27 @@ const initialState: GameState = {
 
 export const useGameStore = create<GameState & GameActions>((set) => ({
     ...initialState,
+    
+    selectMatch: (id) => set((state) => {
+        const newMatch = MOCK_MATCHES.find(m => m.matchId === id);
+
+        if (!newMatch || newMatch.matchId === state.currentMatch.matchId) {
+            return {};
+        }
+        
+        const newLineup = newMatch.lineup;
+
+        return {
+            currentMatch: newMatch,
+            guessesByPosition: createInitialPositionStates(newLineup, state.MAX_LIVES), 
+            livesRemaining: 5,
+            isGameOver: false,
+            isGameWon: false,
+        };
+    }),
+
+    currentMatchIndex: MOCK_MATCHES[0].matchId,
+    solution: MOCK_MATCHES[0].lineup,
 
     // Action to control which modal is open
     setActivePosition: (id) => set(() => ({
@@ -100,12 +126,28 @@ export const useGameStore = create<GameState & GameActions>((set) => ({
         };
     }),
 
-    // Action to reset the entire game state
-    resetGame: () => set(() => {
-        // Recalculates and returns the initial state values
-        return { 
-            ...initialState, 
-            guessesByPosition: createInitialPositionStates(MAX_LIVES),
+    // Reset the entire game state
+    resetGame: () => set((state) => {
+        const currentLineup = state.currentMatch.lineup; 
+    
+        // Recalculate the clean guesses
+        const newGuessesByPosition = createInitialPositionStates(
+            currentLineup, 
+            state.MAX_LIVES
+        );
+
+        // Return the reset state, preserving the current match solution/ID
+        return {
+            // Preserve the core state identifying the game:
+            currentMatchId: state.currentMatch.matchId, 
+            currentSolution: state.currentMatch.lineup,
+            MAX_LIVES: state.MAX_LIVES,
+
+            // Reset the game-play specific state:
+            guessesByPosition: newGuessesByPosition,
+            activePositionId: null,
+            isGameOver: false,
+            isGameWon: false,
         };
     }),
 }));

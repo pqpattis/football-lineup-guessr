@@ -20,7 +20,6 @@ export interface Player {
   nationality: string;
   kitNumber: number;
   age: number;
-  team: string; 
 }
 
 export interface SolutionPlayer extends Player {
@@ -31,7 +30,9 @@ export interface MatchSolution {
     matchId: number; 
     date: string; 
     formation: string; 
-    lineup: SolutionPlayer[]; 
+    lineup: SolutionPlayer[];
+    team: string;
+    opponent: string;
 }
 
 // Interface to store a single completed guess (used for history)

@@ -1,5 +1,5 @@
 import { PositionSlot } from "@/types";
-import { GuessLetter, LetterStatus } from "@/types";
+import { GuessLetter, LetterStatus } from "@/utils/nameComparison";
 import { PositionState } from "@/store/gameStore";
 
 // Define array positioning for 4-3-3 formation
@@ -24,11 +24,34 @@ const formation433: PositionSlot[] = [
   { id: 'GK', name: 'Goalkeeper', gridArea: 'F3' },
 ];
 
+export const formation4312: PositionSlot[] = [
+  // Two striker attack
+  { id: 'LS', name: 'Left Striker', gridArea: 'A2' },
+  { id: 'RS', name: 'Right Striker', gridArea: 'A4' },
+
+  // Attacking midfielder positioned between the lines
+  { id: 'CAM', name: 'Attacking Midfielder', gridArea: 'B3' }, 
+  
+  // Midfield
+  { id: 'LCM', name: 'Left Center Mid', gridArea: 'C2' },
+  { id: 'CM', name: 'Center Midfielder', gridArea: 'C3' },
+  { id: 'RCM', name: 'Right Center Mid', gridArea: 'C4' },
+
+  // Defense
+  { id: 'LB', name: 'Left Back', gridArea: 'E1' },
+  { id: 'LCB', name: 'Left Center Back', gridArea: 'E2' },
+  { id: 'RCB', name: 'Right Center Back', gridArea: 'E4' },
+  { id: 'RB', name: 'Right Back', gridArea: 'E5' },
+  
+  // GK
+  { id: 'GK', name: 'Goalkeeper', gridArea: 'F3' },
+];
+
 
 // Export a map containing all defined formations
 export const FORMATION_MAP = {
   '4-3-3': formation433,
-  // '4-4-2': formation442,
+  '4-3-1-2': formation4312,
 };
 
 export type FormationKey = keyof typeof FORMATION_MAP;

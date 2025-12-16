@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { NameGuess, Player, PositionId } from '@/types';
-import { MOCK_SOLUTION } from '@/data/mockMatch'; 
 import { useGameStore } from '@/store/gameStore';
 import { compareNames } from '@/utils/nameComparison';
 
@@ -43,6 +42,9 @@ export const GuessingModal: React.FC<GuessingModalProps> = ({
     const positionState = useGameStore(state => positionId ? state.guessesByPosition[positionId] : undefined);
     const addGuess = useGameStore(state => state.addGuess);
 
+    // Select the current solution from the store
+    const currentSolution = useGameStore(state => state.currentMatch.lineup);
+
     // Get history and lives from the store state
     const guessHistory = positionState?.guesses || [];
     const maxGuesses = 5; 
@@ -50,7 +52,7 @@ export const GuessingModal: React.FC<GuessingModalProps> = ({
 
     if (!isOpen || !positionId || !positionState) return null;
 
-    const solutionPlayer = MOCK_SOLUTION.lineup.find(p => p.positionId === positionId);
+    const solutionPlayer = currentSolution.find(p => p.positionId === positionId);
     const correctName = solutionPlayer?.name || "";
     const correctNameLength = correctName.length;
 

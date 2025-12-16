@@ -1,5 +1,5 @@
 import { useGameStore, GameState } from '@/store/gameStore'; 
-import { MOCK_SOLUTION } from '@/data/mockMatch';
+import { MOCK_MATCHES } from '@/data/mockMatches';
 import { NameGuess, PositionId } from '@/types';
 
 // Helper to get a clean slice of the store for testing
@@ -14,7 +14,7 @@ describe('useGameStore Core Logic', () => {
 
     test('Store initializes with correct number of positions and lives', () => {
         const state = getStoreState();
-        const expectedPositions = MOCK_SOLUTION.lineup.length; // 11 positions
+        const expectedPositions = MOCK_MATCHES[0].lineup.length; // 11 positions
 
         expect(Object.keys(state.guessesByPosition).length).toBe(expectedPositions);
         expect(state.guessesByPosition['GK'].livesRemaining).toBe(state.MAX_LIVES);

@@ -3,10 +3,10 @@
 import { Pitch } from "@/components/Pitch";
 import { GuessingModal } from "@/components/GuessingModal";
 import { useState } from "react";
-import { MOCK_SOLUTION } from "@/data/mockMatch"; 
 import { SolutionPlayer, Player, PositionId } from "@/types"; 
 import { FormationKey, FORMATION_MAP } from "@/components/PitchData"; 
 import { useGameStore } from "@/store/gameStore";
+import { MatchSelector } from "@/components/MatchSelector";
 import dynamic from "next/dynamic";
 
 // Relies on dynamic client-side state
@@ -21,12 +21,14 @@ export default function Home() {
     // State to track which position the user has clicked on (e.g., 'GK', 'ST')
   const [selectedSlotId, setSelectedSlotId] = useState<PositionId | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  // Get the current formation string from the mock solution
-  const activeFormation = MOCK_SOLUTION.formation as FormationKey;
 
-    // Get the full lineup data to pass to the Pitch component
-  const solutionLineup: SolutionPlayer[] = MOCK_SOLUTION.lineup;
+  const currentMatch = useGameStore(state => state.currentMatch);
+
+  // Get the current formation string from the mock solution
+  const activeFormation = currentMatch.formation as FormationKey;
+
+  // Get the full lineup data to pass to the Pitch component
+  const solutionLineup: SolutionPlayer[] = currentMatch.lineup;
 
   const guessesByPosition = useGameStore(state => state.guessesByPosition);
 
@@ -59,15 +61,21 @@ export default function Home() {
         Lineup Wordle
       </h1>
       <p className="mb-8 text-lg text-gray-600">
-        {MOCK_SOLUTION.lineup[0].team} vs Liverpool ({MOCK_SOLUTION.date.substring(0, 4)} Final)
+        {currentMatch.team} vs {currentMatch.opponent} {currentMatch.date}
       </p>
-      
-      <Pitch 
-        onSlotClick={handleSlotClick} 
-        currentFormation={activeFormation} 
-        solutionLineup={solutionLineup}
-        gameState={guessesByPosition}
-      />
+
+      <div className="flex w-full max-w-7xl items-start gap-8">
+          
+          <MatchSelector />
+          
+          <Pitch
+            onSlotClick={handleSlotClick}
+            currentFormation={activeFormation}
+            solutionLineup={solutionLineup}
+            gameState={guessesByPosition}
+          />
+          
+      </div>
       
       <GuessingModal
         isOpen={isModalOpen}

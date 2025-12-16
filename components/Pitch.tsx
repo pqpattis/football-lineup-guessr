@@ -1,8 +1,8 @@
 import React from 'react';
 import { FORMATION_MAP, FormationKey, getBestFeedback } from './PitchData'; 
 import { PositionSlot, SolutionPlayer, PositionId } from '@/types';
-import { GuessLetter } from '@/types';
 import { PositionState } from '@/store/gameStore';
+import { GuessLetter } from '@/utils/nameComparison';
 
 // Name progress display
 const NameProgressDisplay: React.FC<{ bestFeedback: GuessLetter[] }> = ({ bestFeedback }) => {
