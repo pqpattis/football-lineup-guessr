@@ -155,6 +155,21 @@ export const Pitch: React.FC<PitchProps> = ({ onSlotClick, currentFormation, sol
           gridTemplateColumns: 'repeat(5, 1fr)', // Always 5 columns wide
           gridTemplateRows: 'repeat(6, 1fr)',    // Always 6 rows high
           gridTemplateAreas: gridTemplateAreas,
+          backgroundColor: '#2d5a27',
+          backgroundImage: `
+            repeating-linear-gradient(
+              to bottom,
+              transparent,
+              transparent 8%,
+              rgba(0, 0, 0, 0.08) 8%,
+              rgba(0, 0, 0, 0.08) 16%
+            ),
+            radial-gradient(
+              circle at 50% 50%,
+              rgba(255, 255, 255, 0.15) 0%,
+              rgba(0, 0, 0, 0.2) 100%
+            )
+          `
         }}
       >
         {/* Dev-only grid overlay to help debug cell boundaries */}
@@ -172,14 +187,28 @@ export const Pitch: React.FC<PitchProps> = ({ onSlotClick, currentFormation, sol
             />
           </div>
         )} */}
-        {/* Field Lines for Visual Context */}
-        <div className="absolute inset-0 border-white/50 pointer-events-none">
-          {/* Halfway Line */}
-          <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-white/50 transform -translate-y-1/2"></div>
-          {/* Center Circle */}
-          <div className="absolute top-1/2 left-1/2 w-16 md:w-20 lg:w-24 h-16 md:h-20 lg:h-24 border-2 border-white/50 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
-          {/* Goal Area/Penalty Box visual at the bottom (GK end) */}
-          <div className="absolute bottom-2 left-1/2 w-[30%] max-w-[220px] h-14 md:h-16 border-t-4 border-l-2 border-r-2 border-white/50 transform -translate-x-1/2"></div>
+        {/* Field lines for visual context */}
+       <div className="absolute inset-0 pointer-events-none">
+          {/* Outside boundaries */}
+          <div className="absolute inset-4 border-2 border-white/20 rounded-sm" />
+
+          {/* Opposing 18-yard box */}
+          <div className="absolute top-4 left-1/2 w-[40%] h-24 border-b-2 border-x-2 border-white/20 -translate-x-1/2" />
+          
+          {/* Opposing 6-yard box */}
+          <div className="absolute top-4 left-1/2 w-[20%] h-10 border-b-2 border-x-2 border-white/20 -translate-x-1/2" />
+
+          {/* Half */}
+          <div className="absolute top-1/2 left-4 right-4 h-[2px] bg-white/20 -translate-y-1/2" />
+          
+          {/* Center circle */}
+          <div className="absolute top-1/2 left-1/2 w-32 h-32 border-2 border-white/20 rounded-full -translate-x-1/2 -translate-y-1/2" />
+          
+          {/* Current team's 18-yard box */}
+          <div className="absolute bottom-4 left-1/2 w-[40%] h-24 border-t-2 border-x-2 border-white/20 -translate-x-1/2" />
+          
+          {/* Current team's 6-yard box */}
+          <div className="absolute bottom-4 left-1/2 w-[20%] h-10 border-t-2 border-x-2 border-white/20 -translate-x-1/2" />
         </div>
 
         {/* Render the Player Slots by mapping the formation data */}
