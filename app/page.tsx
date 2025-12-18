@@ -56,9 +56,9 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-8 bg-gray-200">
+    <main className="flex min-h-screen flex-col items-center p-8 bg-[#050a0f] bg-[radial-gradient(circle_at_top_right,_#101a25_0%,_#050a0f_100%)]">
       <h1 className="text-4xl font-extrabold text-green-800 mb-6">
-        Lineup Wordle
+        Football Lineup Guessr
       </h1>
       <p className="mb-8 text-lg text-gray-600">
         {currentMatch.team} vs {currentMatch.opponent} {currentMatch.date}

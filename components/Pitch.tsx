@@ -159,11 +159,11 @@ export const Pitch: React.FC<PitchProps> = ({ onSlotClick, currentFormation, sol
     '"F1 F2 F3 F4 F5"';  // GK Area 
 
   return (
-    <div className="p-4 bg-gray-100 rounded-lg shadow-inner">
+    <div className="p-4 rounded-lg shadow-inner">
       <div
         className={
           `relative h-[min(70vh,700px)] w-full max-w-3xl mx-auto
-          bg-green-700 border-4 border-white rounded-lg
+          bg-green-700 border-4 border-white/10 rounded-lg
           shadow-[inset_0_0_15px_rgba(0,0,0,0.5)]
           grid gap-2 p-0`
         }
