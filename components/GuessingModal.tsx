@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { NameGuess, Player, PositionId } from '@/types';
 import { useGameStore } from '@/store/gameStore';
 import { compareNames } from '@/utils/nameComparison';
+import { motion } from 'framer-motion';
 
 interface GuessingModalProps {
     isOpen: boolean;
@@ -15,16 +16,30 @@ interface GuessingModalProps {
 
 // Player guess row component
 const GuessRow: React.FC<{ guess: NameGuess }> = ({ guess }) => (
-    <div className="flex justify-center my-1 space-x-0.5">
+    <div className="flex justify-center my-1 space-x-1">
         {guess.feedback.map((f, i) => (
-            <div
+            <motion.div
                 key={i}
-                className={`w-8 h-8 text-sm flex items-center justify-center font-extrabold text-white rounded 
-                    ${f.status === 'correct' ? 'bg-green-600' : 
-                      f.status === 'present' ? 'bg-yellow-500' : 'bg-gray-400'}`}
+                initial={{ rotateX: 0 }}
+                // Animate: Flip 90 degrees, then to 0 with the new color
+                animate={{ rotateX: [0, 90, 0] }}
+                transition={{ 
+                    duration: 0.6, 
+                    delay: i * 0.1, // Staggered 0.1s delay per letter
+                    ease: "easeInOut" 
+                }}
+                className={`
+                    w-10 h-10 text-lg flex items-center justify-center font-black text-white rounded-md shadow-sm
+                    uppercase transition-colors duration-300
+                `}
+                style={{
+                    backgroundColor: f.status === 'correct' ? '#16a34a' : 
+                                     f.status === 'present' ? '#eab308' : '#9ca3af',
+                    transformStyle: 'preserve-3d'
+                }}
             >
                 {f.letter}
-            </div>
+            </motion.div>
         ))}
     </div>
 );
