@@ -93,24 +93,40 @@ const PlayerSlot: React.FC<{
         aria-label={isSolved ? `${name} solved` : `Guess ${name}`}
         className={`
           flex flex-col items-center justify-center
-          w-[clamp(3rem,7vmin,4.5rem)] h-[clamp(3rem,7vmin,4.5rem)] rounded-full shadow-lg transition-all duration-200 transform-gpu
-          ${bgColor} text-white font-bold text-sm
-          hover:opacity-90 hover:scale-105 hover:shadow-xl
-          border-2 ${borderColor} cursor-pointer relative
-          ${solvedClasses}
+          w-[clamp(3.5rem,8vmin,5rem)] h-[clamp(3.5rem,8vmin,5rem)] 
+          rounded-full transition-all duration-300 transform-gpu relative
+          border-2 cursor-pointer group
+          
+          ${isSolved 
+            ? 'bg-gradient-to-br from-emerald-400 via-green-500 to-green-600 border-emerald-200 shadow-[0_0_25px_rgba(16,185,129,0.7)] scale-110 z-10' 
+            : 'bg-white/10 backdrop-blur-md border-white/30 hover:border-white shadow-lg'}
         `}
         onClick={() => onClick(id)}
         title={isSolved ? `${name} (Solved)` : `Guess the ${name} (Kit #${kitNumber})`}
         disabled={isSolved}
       >
-        {/* Main kit number and icon */}
-        <span className="text-xl font-extrabold mb-1 leading-none">
-            {isSolved ? '✅' : kitNumber}
+        {/* Inner shadow */}
+        <div className="absolute inset-0 rounded-full bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+
+        {/* Main icon and kit number */}
+        <span className={`
+            font-black leading-none drop-shadow-md transition-all duration-300
+            ${isSolved ? 'text-slate-900' : 'text-xl text-white/90'}
+        `}>
+            {isSolved ? (
+              <svg 
+                viewBox="0 0 24 24" 
+                fill="currentColor" 
+                className="w-8 h-8 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] animate-in zoom-in duration-500"
+              >
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+              </svg>
+            ): kitNumber}
         </span>
         
         {/* Guesses counter */}
         {guessesTaken > 0 && !isSolved && (
-            <div className="absolute -top-2 -right-2 bg-red-600 text-white w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center border-2 border-white">
+            <div className="absolute -top-1 -right-1 bg-red-500 text-white w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center border-2 border-white animate-in zoom-in duration-300 shadow-md">
                 {guessesTaken}
             </div>
         )}
