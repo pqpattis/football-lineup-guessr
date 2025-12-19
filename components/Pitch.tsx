@@ -1,7 +1,7 @@
 import React from 'react';
 import { FORMATION_MAP, FormationKey, getBestFeedback } from './PitchData'; 
 import { PositionSlot, SolutionPlayer, PositionId } from '@/types';
-import { PositionState } from '@/store/gameStore';
+import { PositionState, useGameStore } from '@/store/gameStore';
 import { GuessLetter } from '@/utils/nameComparison';
 
 // Name progress display
@@ -78,15 +78,9 @@ const PlayerSlot: React.FC<{
   onClick: (id: string) => void,
   kitNumber: number,
   guessesTaken: number,
-  isSolved: boolean;
-}> = ({ id, name, onClick, kitNumber, guessesTaken, isSolved }) => {
-    
-    // Determine the main background color
-    const bgColor = isSolved ? 'bg-green-600' : 'bg-gray-700';
-    const borderColor = isSolved ? 'border-green-300' : 'border-yellow-300';
-    // Use a pulsing animation for solved slots
-    const solvedClasses = isSolved ? 'animate-pulse scale-105 ring-4 ring-green-300/30' : '';
-    
+  isSolved: boolean,
+  isActive: boolean;
+}> = ({ id, name, onClick, kitNumber, guessesTaken, isSolved, isActive }) => {
     return (
       <button
         aria-pressed={isSolved}
@@ -96,10 +90,11 @@ const PlayerSlot: React.FC<{
           w-[clamp(3.5rem,8vmin,5rem)] h-[clamp(3.5rem,8vmin,5rem)] 
           rounded-full transition-all duration-300 transform-gpu relative
           border-2 cursor-pointer group
-          
           ${isSolved 
             ? 'bg-gradient-to-br from-emerald-400 via-green-500 to-green-600 border-emerald-200 shadow-[0_0_25px_rgba(16,185,129,0.7)] scale-110 z-10' 
-            : 'bg-white/10 backdrop-blur-md border-white/30 hover:border-white shadow-lg'}
+            : isActive 
+              ? 'bg-white/20 backdrop-blur-md border-white scale-110 z-20 shadow-[0_0_30px_rgba(255,255,255,0.4)] ring-4 ring-white/20'
+              : 'bg-white/10 backdrop-blur-md border-white/30 hover:border-white/60 shadow-lg hover:scale-105'}
         `}
         onClick={() => onClick(id)}
         title={isSolved ? `${name} (Solved)` : `Guess the ${name} (Kit #${kitNumber})`}
@@ -240,6 +235,9 @@ export const Pitch: React.FC<PitchProps> = ({ onSlotClick, currentFormation, sol
           // Calculate the best persistent visual feedback
           const bestFeedback = getBestFeedback(positionState, correctNameLength);
 
+          const activePositionId = useGameStore(s => s.activePositionId);
+          const isActive = slot.id === activePositionId;
+          
           return (
             <div
               key={slot.id}
@@ -256,6 +254,7 @@ export const Pitch: React.FC<PitchProps> = ({ onSlotClick, currentFormation, sol
                       kitNumber={player.kitNumber}
                       guessesTaken={positionState?.guesses.length || 0}
                       isSolved={positionState?.isSolved || false}
+                      isActive={isActive}
                     />
                     {correctNameLength > 0 && (
                       <NameProgressDisplay bestFeedback={bestFeedback} />

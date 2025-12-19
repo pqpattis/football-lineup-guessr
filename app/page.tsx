@@ -1,7 +1,7 @@
 'use client';
 
 import { Pitch } from "@/components/Pitch";
-import { GuessingModal } from "@/components/GuessingModal";
+import { GuessingPanel } from "@/components/GuessingPanel";
 import { useState } from "react";
 import { SolutionPlayer, Player, PositionId } from "@/types"; 
 import { FormationKey, FORMATION_MAP } from "@/components/PitchData"; 
@@ -36,6 +36,7 @@ export default function Home() {
     const id = positionId as PositionId;
     setSelectedSlotId(id);
     setIsModalOpen(true);
+    useGameStore.getState().setActivePosition(id);
   };
 
   const handleModalClose = () => {
@@ -56,37 +57,52 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-8 bg-[#050a0f] bg-[radial-gradient(circle_at_top_right,_#101a25_0%,_#050a0f_100%)]">
-      <h1 className="text-4xl font-extrabold text-green-800 mb-6">
-        Football Lineup Guessr
-      </h1>
-      <p className="mb-8 text-lg text-gray-600">
-        {currentMatch.team} vs {currentMatch.opponent} {currentMatch.date}
-      </p>
+    <main className="flex h-screen flex-col bg-[#050a0f] bg-[radial-gradient(circle_at_top_right,_#101a25_0%,_#050a0f_100%)] overflow-hidden">
+      
+      {/* Header */}
+      <header className="w-full py-4 px-8 border-b border-white/10 flex justify-between items-center backdrop-blur-md z-20">
+        <div>
+          <h1 className="text-2xl font-black text-emerald-500 tracking-tighter uppercase italic">
+            Lineup <span className="text-white">Guessr</span>
+          </h1>
+        </div>
+        
+        <div className="text-right">
+          <p className="text-sm font-bold text-white uppercase tracking-widest">
+            {currentMatch.team} <span className="text-emerald-500 mx-1">vs</span> {currentMatch.opponent}
+          </p>
+          <p className="text-[10px] text-white/40 uppercase font-medium">
+            Champions League Final • {currentMatch.date}
+          </p>
+        </div>
+      </header>
 
-      <div className="flex w-full max-w-7xl items-start gap-8">
-          
+      {/* Main dashboard */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[320px_1fr_350px] overflow-hidden">
+        
+        {/* Fixture list */}
+        <aside className="hidden lg:block border-r border-white/10 overflow-y-auto">
           <MatchSelector />
-          
+        </aside>
+
+        {/* Pitch */}
+        <section className="relative flex flex-col items-center justify-center p-4 overflow-y-auto custom-scrollbar">
           <Pitch
             onSlotClick={handleSlotClick}
             currentFormation={activeFormation}
             solutionLineup={solutionLineup}
             gameState={guessesByPosition}
           />
-          
+        </section>
+
+        {/* Guessing panel */}
+        <aside className="hidden lg:block border-l border-white/10 bg-white/[0.02] backdrop-blur-3xl overflow-y-auto">
+          <GuessingPanel />
+        </aside>
+
       </div>
-      
-      <GuessingModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        positionId={selectedSlotId}
-        positionName={getPositionName(selectedSlotId)}
-        onPlayerSuccess={handlePlayerSuccess}
-      />
 
       <GameOverModal />
-
     </main>
   );
 }
